@@ -91,6 +91,7 @@ public class ShaclProperties {
 	private Resource id;
 
 	private final List<Literal> message = new ArrayList<>();
+	private IRI severity;
 
 	public ShaclProperties() {
 	}
@@ -139,6 +140,12 @@ public class ShaclProperties {
 					break;
 				case "http://www.w3.org/ns/shacl#message":
 					message.add((Literal) object);
+					break;
+				case "http://www.w3.org/ns/shacl#severity":
+					if (severity != null) {
+						throw new IllegalStateException(predicate + " already populated");
+					}
+					severity = (IRI) object;
 					break;
 				case "http://www.w3.org/ns/shacl#languageIn":
 					if (languageIn != null) {
@@ -323,6 +330,10 @@ public class ShaclProperties {
 			type = SHACL.NODE_SHAPE;
 		}
 
+		if (severity == null) {
+			severity = SHACL.VIOLATION;
+		}
+
 	}
 
 	public List<IRI> getClazz() {
@@ -437,6 +448,10 @@ public class ShaclProperties {
 		return message;
 	}
 
+	public IRI getSeverity() {
+		return severity;
+	}
+
 	public List<Resource> getProperty() {
 		return property;
 	}
@@ -504,4 +519,5 @@ public class ShaclProperties {
 	public Boolean getQualifiedValueShapesDisjoint() {
 		return qualifiedValueShapesDisjoint;
 	}
+
 }

@@ -16,7 +16,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.SHACL;
-import org.eclipse.rdf4j.sail.shacl.ShaclSail;
 import org.eclipse.rdf4j.sail.shacl.SourceConstraintComponent;
 import org.eclipse.rdf4j.sail.shacl.ValidationSettings;
 import org.eclipse.rdf4j.sail.shacl.ast.constraintcomponents.ConstraintComponent;
@@ -42,13 +41,13 @@ public class NodeShape extends Shape {
 	}
 
 	public static NodeShape getInstance(ShaclProperties properties,
-			ShapeSource shapeSource, Cache cache, ShaclSail shaclSail) {
+			ShapeSource shapeSource, ParseSettings parseSettings, Cache cache) {
 
 		NodeShape shape = (NodeShape) cache.get(properties.getId());
 		if (shape == null) {
 			shape = new NodeShape();
 			cache.put(properties.getId(), shape);
-			shape.populate(properties, shapeSource, cache, shaclSail);
+			shape.populate(properties, shapeSource, parseSettings, cache);
 		}
 
 		return shape;
@@ -56,8 +55,8 @@ public class NodeShape extends Shape {
 
 	@Override
 	public void populate(ShaclProperties properties, ShapeSource connection,
-			Cache cache, ShaclSail shaclSail) {
-		super.populate(properties, connection, cache, shaclSail);
+			ParseSettings parseSettings, Cache cache) {
+		super.populate(properties, connection, parseSettings, cache);
 
 		if (properties.getMinCount() != null) {
 			throw new IllegalStateException("NodeShapes do not support sh:MinCount in " + getId());
@@ -75,7 +74,7 @@ public class NodeShape extends Shape {
 		 * Also not supported here is: - sh:lessThan - sh:lessThanOrEquals - sh:qualifiedValueShape
 		 */
 
-		constraintComponents = getConstraintComponents(properties, connection, cache, shaclSail);
+		constraintComponents = getConstraintComponents(properties, connection, parseSettings, cache);
 
 	}
 

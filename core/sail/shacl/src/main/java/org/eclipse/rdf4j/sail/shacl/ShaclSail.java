@@ -239,23 +239,21 @@ public class ShaclSail extends ShaclSailBaseConfiguration {
 	}
 
 	/**
+	 * @return
 	 * @implNote This is an extension point for configuring a different executor service for parallel validation. The
 	 *           code is marked as experimental because it may change from one minor release to another.
-	 * @return
 	 */
 	@Experimental
 	protected RevivableExecutorService getExecutorService() {
-		return new RevivableExecutorService(
-				() -> Executors.newFixedThreadPool(AVAILABLE_PROCESSORS,
-						r -> {
-							Thread t = Executors.defaultThreadFactory().newThread(r);
-							// this thread pool does not need to stick around if the all other threads are done, because
-							// it is only used for SHACL validation and if all other threads have ended then there would
-							// be no thread to receive the validation results.
-							t.setDaemon(true);
-							t.setName("ShaclSail validation thread " + t.getId());
-							return t;
-						}));
+		return new RevivableExecutorService(() -> Executors.newFixedThreadPool(AVAILABLE_PROCESSORS, r -> {
+			Thread t = Executors.defaultThreadFactory().newThread(r);
+			// this thread pool does not need to stick around if the all other threads are done, because
+			// it is only used for SHACL validation and if all other threads have ended then there would
+			// be no thread to receive the validation results.
+			t.setDaemon(true);
+			t.setName("ShaclSail validation thread " + t.getId());
+			return t;
+		}));
 	}
 
 	void closeConnection() {
@@ -277,44 +275,13 @@ public class ShaclSail extends ShaclSailBaseConfiguration {
 	 * @return List of IRIs (SHACL predicates)
 	 */
 	public static List<IRI> getSupportedShaclPredicates() {
-		return Arrays.asList(
-				SHACL.TARGET_CLASS,
-				SHACL.PATH,
-				SHACL.PROPERTY,
-				SHACL.OR,
-				SHACL.AND,
-				SHACL.MIN_COUNT,
-				SHACL.MAX_COUNT,
-				SHACL.MIN_LENGTH,
-				SHACL.MAX_LENGTH,
-				SHACL.PATTERN,
-				SHACL.FLAGS,
-				SHACL.NODE_KIND_PROP,
-				SHACL.LANGUAGE_IN,
-				SHACL.DATATYPE,
-				SHACL.MIN_EXCLUSIVE,
-				SHACL.MIN_INCLUSIVE,
-				SHACL.MAX_EXCLUSIVE,
-				SHACL.MAX_INCLUSIVE,
-				SHACL.CLASS,
-				SHACL.TARGET_NODE,
-				SHACL.DEACTIVATED,
-				SHACL.TARGET_SUBJECTS_OF,
-				SHACL.IN,
-				SHACL.UNIQUE_LANG,
-				SHACL.NOT,
-				SHACL.TARGET_OBJECTS_OF,
-				SHACL.HAS_VALUE,
-				SHACL.TARGET_PROP,
-				SHACL.INVERSE_PATH,
-				SHACL.NODE,
-				SHACL.QUALIFIED_MAX_COUNT,
-				SHACL.QUALIFIED_MIN_COUNT,
-				SHACL.QUALIFIED_VALUE_SHAPE,
-				SHACL.SHAPES_GRAPH,
-				DASH.hasValueIn,
-				RSX.targetShape
-		);
+		return Arrays.asList(SHACL.TARGET_CLASS, SHACL.PATH, SHACL.PROPERTY, SHACL.OR, SHACL.AND, SHACL.MIN_COUNT,
+				SHACL.MAX_COUNT, SHACL.MIN_LENGTH, SHACL.MAX_LENGTH, SHACL.PATTERN, SHACL.FLAGS, SHACL.NODE_KIND_PROP,
+				SHACL.LANGUAGE_IN, SHACL.DATATYPE, SHACL.MIN_EXCLUSIVE, SHACL.MIN_INCLUSIVE, SHACL.MAX_EXCLUSIVE,
+				SHACL.MAX_INCLUSIVE, SHACL.CLASS, SHACL.TARGET_NODE, SHACL.DEACTIVATED, SHACL.TARGET_SUBJECTS_OF,
+				SHACL.IN, SHACL.UNIQUE_LANG, SHACL.NOT, SHACL.TARGET_OBJECTS_OF, SHACL.HAS_VALUE, SHACL.TARGET_PROP,
+				SHACL.INVERSE_PATH, SHACL.NODE, SHACL.QUALIFIED_MAX_COUNT, SHACL.QUALIFIED_MIN_COUNT,
+				SHACL.QUALIFIED_VALUE_SHAPE, SHACL.SHAPES_GRAPH, DASH.hasValueIn, RSX.targetShape);
 	}
 
 	@Override
@@ -355,14 +322,12 @@ public class ShaclSail extends ShaclSailBaseConfiguration {
 		}
 
 		cachedShapes = new StampedLockManager.Cache<>(new StampedLockManager(), () -> {
-			IRI[] shapesGraphs = getShapesGraphs().stream()
-					.map(g -> {
-						if (g.equals(RDF4J.NIL)) {
-							return null;
-						}
-						return g;
-					})
-					.toArray(IRI[]::new);
+			IRI[] shapesGraphs = getShapesGraphs().stream().map(g -> {
+				if (g.equals(RDF4J.NIL)) {
+					return null;
+				}
+				return g;
+			}).toArray(IRI[]::new);
 
 			boolean onlyRdf4jShaclShapeGraph = shapesGraphs.length == 1
 					&& RDF4J.SHACL_SHAPE_GRAPH.equals(shapesGraphs[0]);
@@ -385,7 +350,8 @@ public class ShaclSail extends ShaclSailBaseConfiguration {
 
 		try (ShapeSource shapeSource = new CombinedShapeSource(shapesRepoConnection, sailConnection)
 				.withContext(shapesGraphs)) {
-			return Shape.Factory.getShapes(shapeSource, this);
+			return Shape.Factory.getShapes(shapeSource,
+					new Shape.ParseSettings(isEclipseRdf4jShaclExtensions(), isDashDataShapes()));
 		}
 
 	}
@@ -395,7 +361,8 @@ public class ShaclSail extends ShaclSailBaseConfiguration {
 			throws SailException {
 
 		try (ShapeSource shapeSource = new ForwardChainingShapeSource(shapesRepoConnection).withContext(shapesGraphs)) {
-			return Shape.Factory.getShapes(shapeSource, this);
+			return Shape.Factory.getShapes(shapeSource,
+					new Shape.ParseSettings(isEclipseRdf4jShaclExtensions(), isDashDataShapes()));
 		}
 
 	}
@@ -452,9 +419,8 @@ public class ShaclSail extends ShaclSailBaseConfiguration {
 		}
 
 		try {
-			return new ShaclSailConnection(this, super.getConnection(),
-					super.getConnection(), super.getConnection(), super.getConnection(),
-					shapesRepo.getConnection());
+			return new ShaclSailConnection(this, super.getConnection(), super.getConnection(), super.getConnection(),
+					super.getConnection(), shapesRepo.getConnection());
 		} catch (Throwable t) {
 			singleConnectionCounter.decrementAndGet();
 			throw t;

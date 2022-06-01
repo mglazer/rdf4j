@@ -120,6 +120,8 @@ public class ConnectionsGroup implements AutoCloseable {
 	}
 
 	public RdfsSubClassOfReasoner getRdfsSubClassOfReasoner() {
+		if (rdfsSubClassOfReasonerProvider == null)
+			return null;
 		return rdfsSubClassOfReasonerProvider.getRdfsSubClassOfReasoner();
 	}
 

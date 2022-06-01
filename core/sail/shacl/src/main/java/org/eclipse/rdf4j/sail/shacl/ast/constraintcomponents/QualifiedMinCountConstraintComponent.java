@@ -19,7 +19,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.vocabulary.SHACL;
-import org.eclipse.rdf4j.sail.shacl.ShaclSail;
 import org.eclipse.rdf4j.sail.shacl.SourceConstraintComponent;
 import org.eclipse.rdf4j.sail.shacl.ValidationSettings;
 import org.eclipse.rdf4j.sail.shacl.ast.Cache;
@@ -54,7 +53,8 @@ public class QualifiedMinCountConstraintComponent extends AbstractConstraintComp
 	Long qualifiedMinCount;
 
 	public QualifiedMinCountConstraintComponent(Resource id, ShapeSource shapeSource,
-			Cache cache, ShaclSail shaclSail, Boolean qualifiedValueShapesDisjoint, Long qualifiedMinCount) {
+			Shape.ParseSettings parseSettings, Cache cache, Boolean qualifiedValueShapesDisjoint,
+			Long qualifiedMinCount) {
 		super(id);
 
 		ShaclProperties p = new ShaclProperties(id, shapeSource);
@@ -63,9 +63,9 @@ public class QualifiedMinCountConstraintComponent extends AbstractConstraintComp
 		this.qualifiedMinCount = qualifiedMinCount;
 
 		if (p.getType() == SHACL.NODE_SHAPE) {
-			qualifiedValueShape = NodeShape.getInstance(p, shapeSource, cache, shaclSail);
+			qualifiedValueShape = NodeShape.getInstance(p, shapeSource, parseSettings, cache);
 		} else if (p.getType() == SHACL.PROPERTY_SHAPE) {
-			qualifiedValueShape = PropertyShape.getInstance(p, shapeSource, cache, shaclSail);
+			qualifiedValueShape = PropertyShape.getInstance(p, shapeSource, parseSettings, cache);
 		} else {
 			throw new IllegalStateException("Unknown shape type for " + p.getId());
 		}
