@@ -23,6 +23,9 @@ public enum Severity {
 	}
 
 	public static Severity fromIri(IRI iri) {
+		if (iri == null)
+			return Severity.Violation;
+
 		for (Severity severity : Severity.values()) {
 			if (severity.iri == iri)
 				return severity;
@@ -31,7 +34,8 @@ public enum Severity {
 			if (severity.iri.equals(iri))
 				return severity;
 		}
-		throw new IllegalArgumentException("No know SHACL Severity could be found for <>" + iri);
+
+		return Severity.Violation;
 	}
 
 	public Value getIri() {

@@ -330,10 +330,6 @@ public class ShaclProperties {
 			type = SHACL.NODE_SHAPE;
 		}
 
-		if (severity == null) {
-			severity = SHACL.VIOLATION;
-		}
-
 	}
 
 	public List<IRI> getClazz() {
