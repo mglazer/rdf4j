@@ -12,7 +12,6 @@
 package org.eclipse.rdf4j.sail.shacl.ast.paths;
 
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -64,13 +63,6 @@ public class SimplePath extends Path {
 
 	@Override
 	public void toModel(Resource subject, IRI predicate, Model model, Set<Resource> cycleDetection) {
-	}
-
-	@Override
-	public Stream<StatementMatcher> getStatementMatcher(StatementMatcher.Variable subject,
-			StatementMatcher.Variable object,
-			RdfsSubClassOfReasoner rdfsSubClassOfReasoner) {
-		return Stream.of(new StatementMatcher(subject, new StatementMatcher.Variable(predicate), object));
 	}
 
 	@Override

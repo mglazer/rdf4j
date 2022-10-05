@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -70,13 +69,6 @@ public class SequencePath extends Path {
 	@Override
 	public boolean isSupported() {
 		return false;
-	}
-
-	@Override
-	public Stream<StatementMatcher> getStatementMatcher(StatementMatcher.Variable subject,
-			StatementMatcher.Variable object,
-			RdfsSubClassOfReasoner rdfsSubClassOfReasoner) {
-		throw new ShaclUnsupportedException();
 	}
 
 	@Override

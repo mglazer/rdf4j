@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -135,27 +134,6 @@ public class TargetClass extends Target {
 	@Override
 	public void toModel(Resource subject, IRI predicate, Model model, Set<Resource> cycleDetection) {
 		targetClass.forEach(t -> model.add(subject, getPredicate(), t));
-	}
-
-	@Override
-	public Stream<StatementMatcher> getStatementMatcher(StatementMatcher.Variable subject,
-			StatementMatcher.Variable object,
-			RdfsSubClassOfReasoner rdfsSubClassOfReasoner) {
-		assert (subject == null);
-
-		Stream<Resource> stream = targetClass.stream();
-
-		if (rdfsSubClassOfReasoner != null) {
-			stream = stream
-					.map(rdfsSubClassOfReasoner::backwardsChain)
-					.flatMap(Collection::stream)
-					.distinct();
-		}
-
-		return stream
-				.map(t -> new StatementMatcher(object, new StatementMatcher.Variable(RDF.TYPE),
-						new StatementMatcher.Variable(t)));
-
 	}
 
 	@Override

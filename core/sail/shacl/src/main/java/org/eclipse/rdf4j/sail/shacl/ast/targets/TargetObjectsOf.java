@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -79,20 +78,6 @@ public class TargetObjectsOf extends Target {
 			PlanNode parent) {
 		return new FilterByPredicate(connectionsGroup.getBaseConnection(), targetObjectsOf, parent,
 				FilterByPredicate.On.Object, dataGraph);
-	}
-
-	@Override
-	public Stream<StatementMatcher> getStatementMatcher(StatementMatcher.Variable subject,
-			StatementMatcher.Variable object,
-			RdfsSubClassOfReasoner rdfsSubClassOfReasoner) {
-		assert (subject == null);
-
-		return targetObjectsOf.stream()
-				.map(t -> new StatementMatcher(
-						null,
-						new StatementMatcher.Variable(t),
-						object)
-				);
 	}
 
 	@Override

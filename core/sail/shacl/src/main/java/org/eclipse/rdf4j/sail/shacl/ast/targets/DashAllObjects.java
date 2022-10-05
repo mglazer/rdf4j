@@ -12,7 +12,6 @@
 package org.eclipse.rdf4j.sail.shacl.ast.targets;
 
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -72,21 +71,6 @@ public class DashAllObjects extends Target {
 			PlanNode parent) {
 		return new FilterTargetIsObject(connectionsGroup.getBaseConnection(), dataGraph, parent)
 				.getTrueNode(UnBufferedPlanNode.class);
-	}
-
-	@Override
-	public Stream<StatementMatcher> getStatementMatcher(StatementMatcher.Variable subject,
-			StatementMatcher.Variable object,
-			RdfsSubClassOfReasoner rdfsSubClassOfReasoner) {
-		assert (subject == null);
-
-		return Stream.of(
-				new StatementMatcher(
-						null,
-						null,
-						object
-				)
-		);
 	}
 
 	@Override

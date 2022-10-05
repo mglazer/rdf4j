@@ -251,7 +251,8 @@ public class EffectiveTarget {
 			if (includeTargetsAffectedByRemoval) {
 				targetChainRetriever = new TargetChainRetriever(
 						connectionsGroup,
-						dataGraph, statementMatchers,
+						dataGraph,
+						statementMatchers,
 						statementMatchersRemoval,
 						query,
 						getVars(),
@@ -260,7 +261,8 @@ public class EffectiveTarget {
 			} else {
 				targetChainRetriever = new TargetChainRetriever(
 						connectionsGroup,
-						dataGraph, statementMatchers,
+						dataGraph,
+						statementMatchers,
 						null,
 						query,
 						getVars(),

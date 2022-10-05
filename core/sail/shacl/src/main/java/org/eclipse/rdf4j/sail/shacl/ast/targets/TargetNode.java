@@ -14,7 +14,6 @@ package org.eclipse.rdf4j.sail.shacl.ast.targets;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
@@ -64,15 +63,6 @@ public class TargetNode extends Target {
 		targetNodes.forEach(t -> {
 			model.add(subject, getPredicate(), t);
 		});
-	}
-
-	@Override
-	public Stream<StatementMatcher> getStatementMatcher(StatementMatcher.Variable subject,
-			StatementMatcher.Variable object,
-			RdfsSubClassOfReasoner rdfsSubClassOfReasoner) {
-		assert (subject == null);
-		return Stream.empty();
-//		throw new ShaclUnsupportedException();
 	}
 
 	@Override

@@ -12,7 +12,6 @@
 package org.eclipse.rdf4j.sail.shacl.ast.paths;
 
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -68,13 +67,6 @@ public class InversePath extends Path {
 	@Override
 	public boolean isSupported() {
 		return inversePath.isSupported();
-	}
-
-	@Override
-	public Stream<StatementMatcher> getStatementMatcher(StatementMatcher.Variable subject,
-			StatementMatcher.Variable object,
-			RdfsSubClassOfReasoner rdfsSubClassOfReasoner) {
-		return Stream.of(new StatementMatcher(object, new StatementMatcher.Variable(inversePath.getId()), subject));
 	}
 
 	@Override
