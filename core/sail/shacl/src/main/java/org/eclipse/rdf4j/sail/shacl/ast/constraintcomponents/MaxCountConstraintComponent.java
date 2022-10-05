@@ -113,7 +113,8 @@ public class MaxCountConstraintComponent extends AbstractConstraintComponent {
 							.get()
 							.getTargetQueryFragment(new StatementMatcher.Variable("a"),
 									new StatementMatcher.Variable("c"),
-									connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider),
+									connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider)
+							.getFragment(),
 					false,
 					null,
 					BulkedExternalInnerJoin.getMapper("a", "c", scope, validationSettings.getDataGraph())
@@ -126,7 +127,8 @@ public class MaxCountConstraintComponent extends AbstractConstraintComponent {
 							.get()
 							.getTargetQueryFragment(new StatementMatcher.Variable("a"),
 									new StatementMatcher.Variable("c"),
-									connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider),
+									connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider)
+							.getFragment(),
 					(b) -> new ValidationTuple(b.getValue("a"), b.getValue("c"), scope, true,
 							validationSettings.getDataGraph())
 			);
@@ -175,9 +177,10 @@ public class MaxCountConstraintComponent extends AbstractConstraintComponent {
 			String pathQuery = getTargetChain().getPath()
 					.map(p -> p.getTargetQueryFragment(effectiveTarget.getTargetVar(), value,
 							connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider))
-					.orElseThrow(IllegalStateException::new);
+					.orElseThrow(IllegalStateException::new)
+					.getFragment();
 
-			query += pathQuery;
+			query += "\n" + pathQuery;
 
 		} else if (maxCount > 0) {
 
@@ -190,7 +193,8 @@ public class MaxCountConstraintComponent extends AbstractConstraintComponent {
 				String pathQuery = getTargetChain().getPath()
 						.map(p -> p.getTargetQueryFragment(effectiveTarget.getTargetVar(), value,
 								connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider))
-						.orElseThrow(IllegalStateException::new);
+						.orElseThrow(IllegalStateException::new)
+						.getFragment();
 
 				paths.append(pathQuery).append("\n");
 			}
@@ -214,7 +218,7 @@ public class MaxCountConstraintComponent extends AbstractConstraintComponent {
 
 			String innerCondition = String.join(" && ", notEquals);
 
-			query += paths + "FILTER(" + innerCondition + ")";
+			query += "\n" + paths.toString().trim() + "\n" + "FILTER(" + innerCondition + ")";
 		}
 
 		List<StatementMatcher.Variable> allTargetVariables = effectiveTarget.getAllTargetVariables();

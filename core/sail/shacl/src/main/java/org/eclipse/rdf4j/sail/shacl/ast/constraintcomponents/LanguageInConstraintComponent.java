@@ -28,6 +28,7 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.SHACL;
 import org.eclipse.rdf4j.sail.shacl.SourceConstraintComponent;
 import org.eclipse.rdf4j.sail.shacl.ast.ShaclAstLists;
+import org.eclipse.rdf4j.sail.shacl.ast.StatementMatcher;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.FilterPlanNode;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.LanguageInFilter;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.PlanNode;
@@ -74,13 +75,13 @@ public class LanguageInConstraintComponent extends SimpleAbstractConstraintCompo
 	}
 
 	@Override
-	String getSparqlFilterExpression(String varName, boolean negated) {
+	String getSparqlFilterExpression(StatementMatcher.Variable variable, boolean negated) {
 		if (languageRanges.isEmpty()) {
 			return "true";
 		}
 
 		String filter = languageRanges.stream()
-				.map(lang -> "langMatches(lang(?" + varName + "), \"" + lang + "\")")
+				.map(lang -> "langMatches(lang(" + variable.asSparqlVariable() + "), \"" + lang + "\")")
 				.reduce((a, b) -> a + " || " + b)
 				.orElseThrow(IllegalStateException::new);
 

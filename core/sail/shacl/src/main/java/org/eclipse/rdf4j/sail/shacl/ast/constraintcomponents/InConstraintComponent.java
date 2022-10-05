@@ -24,6 +24,7 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.vocabulary.SHACL;
 import org.eclipse.rdf4j.sail.shacl.SourceConstraintComponent;
 import org.eclipse.rdf4j.sail.shacl.ast.ShaclAstLists;
+import org.eclipse.rdf4j.sail.shacl.ast.StatementMatcher;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.FilterPlanNode;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.PlanNode;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.ValueInFilter;
@@ -63,11 +64,11 @@ public class InConstraintComponent extends SimpleAbstractConstraintComponent {
 	}
 
 	@Override
-	String getSparqlFilterExpression(String varName, boolean negated) {
+	String getSparqlFilterExpression(StatementMatcher.Variable variable, boolean negated) {
 		if (negated) {
-			return "?" + varName + " IN (" + getInSetAsString() + ")";
+			return "" + variable.asSparqlVariable() + " IN (" + getInSetAsString() + ")";
 		} else {
-			return "?" + varName + " NOT IN (" + getInSetAsString() + ")";
+			return "" + variable.asSparqlVariable() + " NOT IN (" + getInSetAsString() + ")";
 		}
 	}
 

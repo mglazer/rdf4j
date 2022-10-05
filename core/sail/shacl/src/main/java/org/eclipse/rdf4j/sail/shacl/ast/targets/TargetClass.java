@@ -12,6 +12,7 @@
 package org.eclipse.rdf4j.sail.shacl.ast.targets;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.SHACL;
 import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.shacl.ast.SparqlFragment;
 import org.eclipse.rdf4j.sail.shacl.ast.StatementMatcher;
 import org.eclipse.rdf4j.sail.shacl.ast.constraintcomponents.ConstraintComponent;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.BufferedSplitter;
@@ -157,7 +159,7 @@ public class TargetClass extends Target {
 	}
 
 	@Override
-	public String getTargetQueryFragment(StatementMatcher.Variable subject, StatementMatcher.Variable object,
+	public SparqlFragment getTargetQueryFragment(StatementMatcher.Variable subject, StatementMatcher.Variable object,
 			RdfsSubClassOfReasoner rdfsSubClassOfReasoner,
 			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider) {
 		assert (subject == null);
@@ -175,12 +177,20 @@ public class TargetClass extends Target {
 			targetClass = this.targetClass;
 		}
 
+		List<StatementMatcher> statementMatchers = targetClass.stream()
+				.map(t -> new StatementMatcher(object, new StatementMatcher.Variable(RDF.TYPE),
+						new StatementMatcher.Variable(t)))
+				.collect(Collectors.toList());
+		;
+
 		if (targetClass.size() == 1) {
 
-			return targetClass.stream()
+			String queryFragment = targetClass.stream()
 					.findFirst()
 					.map(r -> object.asSparqlVariable() + " a <" + r + "> .")
 					.orElseThrow(IllegalStateException::new);
+
+			return SparqlFragment.bgp(queryFragment, statementMatchers);
 
 		} else {
 
@@ -192,8 +202,10 @@ public class TargetClass extends Target {
 
 			String randomSparqlVariable = stableRandomVariableProvider.next().asSparqlVariable();
 
-			return object.asSparqlVariable() + " a " + randomSparqlVariable + ".\n" +
+			String queryFragment = object.asSparqlVariable() + " a " + randomSparqlVariable + ".\n" +
 					"FILTER(" + randomSparqlVariable + " in ( " + in + " ))";
+
+			return SparqlFragment.bgp(queryFragment, statementMatchers);
 		}
 
 	}

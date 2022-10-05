@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.sail.shacl.ast.ShaclUnsupportedException;
+import org.eclipse.rdf4j.sail.shacl.ast.SparqlFragment;
 import org.eclipse.rdf4j.sail.shacl.ast.StatementMatcher;
 import org.eclipse.rdf4j.sail.shacl.ast.Targetable;
 import org.eclipse.rdf4j.sail.shacl.ast.constraintcomponents.ConstraintComponent;
@@ -160,7 +161,9 @@ public class EffectiveTarget {
 		}
 
 		return Stream.concat(chain.stream(), getOptionalAsStream())
-				.flatMap(EffectiveTargetObject::getStatementMatcher)
+				.flatMap(effectiveTargetObject -> effectiveTargetObject.getQueryFragment()
+						.getStatementMatchers()
+						.stream())
 				.anyMatch(
 						currentStatementPattern -> connectionsGroup.getAddedStatements()
 								.hasStatement(currentStatementPattern.getSubjectValue(),
@@ -222,21 +225,25 @@ public class EffectiveTarget {
 		} else {
 			// complex chain
 
-			List<StatementMatcher> statementMatchers = chain.stream()
-					.flatMap(EffectiveTargetObject::getStatementMatcher)
+			List<SparqlFragment> sparqlFragments = chain.stream()
+					.map(EffectiveTargetObject::getQueryFragment)
 					.collect(Collectors.toList());
 
-			String query = chain.stream()
-					.map(EffectiveTargetObject::getQueryFragment)
+			List<StatementMatcher> statementMatchers = sparqlFragments.stream()
+					.flatMap(sparqlFragment -> sparqlFragment.getStatementMatchers().stream())
+					.collect(Collectors.toList());
+
+			String query = sparqlFragments.stream()
+					.map(SparqlFragment::getFragment)
 					.reduce((a, b) -> a + "\n" + b)
 					.orElse("");
 
 			List<StatementMatcher> statementMatchersRemoval = optional != null
-					? optional.getStatementMatcher().collect(Collectors.toCollection(ArrayList::new))
+					? optional.getQueryFragment().getStatementMatchers()
 					: new ArrayList<>();
 
 			if (chain.getFirst().target instanceof RSXTargetShape) {
-				statementMatchersRemoval.addAll(chain.getFirst().getStatementMatcher().collect(Collectors.toList()));
+				statementMatchersRemoval.addAll(sparqlFragments.get(0).getStatementMatchers());
 				includeTargetsAffectedByRemoval = true;
 			}
 
@@ -289,6 +296,7 @@ public class EffectiveTarget {
 
 		String query = chain.stream()
 				.map(EffectiveTargetObject::getQueryFragment)
+				.map(SparqlFragment::getFragment)
 				.reduce((a, b) -> a + "\n" + b)
 				.orElse("");
 
@@ -311,6 +319,7 @@ public class EffectiveTarget {
 
 		return chain.stream()
 				.map(EffectiveTargetObject::getQueryFragment)
+				.map(SparqlFragment::getFragment)
 				.reduce((a, b) -> a + "\n" + b)
 				.orElse("");
 
@@ -345,15 +354,7 @@ public class EffectiveTarget {
 			this.stableRandomVariableProvider = stableRandomVariableProvider;
 		}
 
-		public Stream<StatementMatcher> getStatementMatcher() {
-			if (prev == null) {
-				return target.getStatementMatcher(null, var, rdfsSubClassOfReasoner);
-			} else {
-				return target.getStatementMatcher(prev.var, var, rdfsSubClassOfReasoner);
-			}
-		}
-
-		public String getQueryFragment() {
+		public SparqlFragment getQueryFragment() {
 			if (prev == null) {
 				return target.getTargetQueryFragment(null, var, rdfsSubClassOfReasoner, stableRandomVariableProvider);
 			} else {

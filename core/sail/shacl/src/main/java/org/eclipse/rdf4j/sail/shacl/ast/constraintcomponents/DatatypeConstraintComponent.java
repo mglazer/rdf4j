@@ -21,6 +21,7 @@ import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.eclipse.rdf4j.model.vocabulary.RSX;
 import org.eclipse.rdf4j.model.vocabulary.SHACL;
 import org.eclipse.rdf4j.sail.shacl.SourceConstraintComponent;
+import org.eclipse.rdf4j.sail.shacl.ast.StatementMatcher;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.DatatypeFilter;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.FilterPlanNode;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.PlanNode;
@@ -56,14 +57,17 @@ public class DatatypeConstraintComponent extends SimpleAbstractConstraintCompone
 	}
 
 	@Override
-	String getSparqlFilterExpression(String varName, boolean negated) {
-		String checkDatatypeConformance = "<" + RSX.valueConformsToXsdDatatypeFunction + ">(?" + varName + ", <"
+	String getSparqlFilterExpression(StatementMatcher.Variable variable, boolean negated) {
+		String checkDatatypeConformance = "<" + RSX.valueConformsToXsdDatatypeFunction + ">("
+				+ variable.asSparqlVariable() + ", <"
 				+ datatype + ">)";
 		if (negated) {
-			return "isLiteral(?" + varName + ") && datatype(?" + varName + ") = <" + datatype + ">"
+			return "isLiteral(" + variable.asSparqlVariable() + ") && datatype(" + variable.asSparqlVariable() + ") = <"
+					+ datatype + ">"
 					+ (coreDatatype.isXSDDatatype() ? " && " + checkDatatypeConformance : "");
 		} else {
-			return "!isLiteral(?" + varName + ") || datatype(?" + varName + ") != <" + datatype + ">"
+			return "!isLiteral(" + variable.asSparqlVariable() + ") || datatype(" + variable.asSparqlVariable()
+					+ ") != <" + datatype + ">"
 					+ (coreDatatype.isXSDDatatype() ? " || !" + checkDatatypeConformance : "");
 		}
 	}

@@ -58,6 +58,14 @@ public class SparqlFragment {
 		return new SparqlFragment(fragment, false, true, statementMatchers);
 	}
 
+	public static SparqlFragment bgp(String fragment, StatementMatcher statementMatcher) {
+		return new SparqlFragment(fragment, false, true, List.of(statementMatcher));
+	}
+
+	public static SparqlFragment bgp(String fragment) {
+		return new SparqlFragment(fragment, false, true, List.of());
+	}
+
 	public static SparqlFragment and(List<SparqlFragment> sparqlFragments) {
 		String collect = sparqlFragments.stream()
 				.peek(s -> {
@@ -196,4 +204,15 @@ public class SparqlFragment {
 		this.statementMatchers.addAll(statementMatchers);
 	}
 
+	@Override
+	public String toString() {
+		return "SparqlFragment{" +
+				"fragment='" + fragment + '\'' +
+				", unionFragments=" + unionFragments +
+				", statementMatchers=" + statementMatchers +
+				", filterCondition=" + filterCondition +
+				", bgp=" + bgp +
+				", union=" + union +
+				'}';
+	}
 }

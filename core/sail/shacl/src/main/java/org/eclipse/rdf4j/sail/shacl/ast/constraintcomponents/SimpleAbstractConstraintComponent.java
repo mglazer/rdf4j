@@ -21,6 +21,7 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.sail.shacl.SourceConstraintComponent;
 import org.eclipse.rdf4j.sail.shacl.ValidationSettings;
 import org.eclipse.rdf4j.sail.shacl.ast.ShaclUnsupportedException;
+import org.eclipse.rdf4j.sail.shacl.ast.SparqlFragment;
 import org.eclipse.rdf4j.sail.shacl.ast.StatementMatcher;
 import org.eclipse.rdf4j.sail.shacl.ast.ValidationApproach;
 import org.eclipse.rdf4j.sail.shacl.ast.ValidationQuery;
@@ -128,7 +129,8 @@ public abstract class SimpleAbstractConstraintComponent extends AbstractConstrai
 								.getTargetQueryFragment(new StatementMatcher.Variable("a"),
 										new StatementMatcher.Variable("c"),
 										connectionsGroup.getRdfsSubClassOfReasoner(),
-										stableRandomVariableProvider),
+										stableRandomVariableProvider)
+								.getFragment(),
 						connectionsGroup.hasPreviousStateConnection(),
 						connectionsGroup.getPreviousStateConnection(),
 						b -> new ValidationTuple(b.getValue("a"), b.getValue("c"), scope, true,
@@ -194,7 +196,8 @@ public abstract class SimpleAbstractConstraintComponent extends AbstractConstrai
 						validationSettings.getDataGraph(), path.get()
 								.getTargetQueryFragment(new StatementMatcher.Variable("a"),
 										new StatementMatcher.Variable("c"),
-										connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider),
+										connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider)
+								.getFragment(),
 						false, null,
 						BulkedExternalInnerJoin.getMapper("a", "c", scope, validationSettings.getDataGraph())
 				);
@@ -221,7 +224,7 @@ public abstract class SimpleAbstractConstraintComponent extends AbstractConstrai
 
 			value = null;
 
-			query += getSparqlFilter(negatePlan, effectiveTarget.getTargetVar(), stableRandomVariableProvider);
+			query += "\n" + getSparqlFilter(negatePlan, effectiveTarget.getTargetVar(), stableRandomVariableProvider);
 
 		} else {
 			value = StatementMatcher.Variable.VALUE;
@@ -229,10 +232,11 @@ public abstract class SimpleAbstractConstraintComponent extends AbstractConstrai
 			String pathQuery = targetChain.getPath()
 					.map(p -> p.getTargetQueryFragment(effectiveTarget.getTargetVar(), value,
 							connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider))
+					.map(SparqlFragment::getFragment)
 					.orElseThrow(IllegalStateException::new);
 
-			query += pathQuery;
-			query += getSparqlFilter(negatePlan, value, stableRandomVariableProvider);
+			query += "\n" + pathQuery;
+			query += "\n" + getSparqlFilter(negatePlan, value, stableRandomVariableProvider);
 		}
 
 		List<StatementMatcher.Variable> allTargetVariables = effectiveTarget.getAllTargetVariables();
@@ -251,7 +255,7 @@ public abstract class SimpleAbstractConstraintComponent extends AbstractConstrai
 		String tempVar = stableRandomVariableProvider.next().asSparqlVariable();
 
 		return String.join("\n",
-				"BIND((" + getSparqlFilterExpression(variable.getName(), negatePlan) + ") as " + tempVar + ")",
+				"BIND((" + getSparqlFilterExpression(variable, negatePlan) + ") as " + tempVar + ")",
 				"FILTER(COALESCE(" + tempVar + ", true))"
 		);
 	}
@@ -261,11 +265,11 @@ public abstract class SimpleAbstractConstraintComponent extends AbstractConstrai
 	 * should evaluate to true for values that fail validation, unless negated==true. If the filter condition throws an
 	 * error (a SPARQL runtime error, not Java error) then the error will be caught and coalesced to `true`.
 	 *
-	 * @param varName
+	 * @param variable
 	 * @param negated
 	 * @return a string that is the body of a SPARQL filter
 	 */
-	abstract String getSparqlFilterExpression(String varName, boolean negated);
+	abstract String getSparqlFilterExpression(StatementMatcher.Variable variable, boolean negated);
 
 	private PlanNode getFilterAttacherWithNegation(boolean negatePlan, PlanNode allTargets) {
 		if (negatePlan) {

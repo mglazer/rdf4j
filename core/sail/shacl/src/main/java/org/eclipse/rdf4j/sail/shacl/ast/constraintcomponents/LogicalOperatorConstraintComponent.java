@@ -82,11 +82,11 @@ public abstract class LogicalOperatorConstraintComponent extends AbstractConstra
 						.collect(Collectors.toList()));
 
 				String pathQuery1 = path.getTargetQueryFragment(subject, object, rdfsSubClassOfReasoner,
-						stableRandomVariableProvider);
+						stableRandomVariableProvider).getFragment();
 				String pathQuery2 = path.getTargetQueryFragment(subject, filterNotExistsVariable,
-						rdfsSubClassOfReasoner, stableRandomVariableProvider);
+						rdfsSubClassOfReasoner, stableRandomVariableProvider).getFragment();
 				String pathQuery3 = path.getTargetQueryFragment(subject, stableRandomVariableProvider.next(),
-						rdfsSubClassOfReasoner, stableRandomVariableProvider);
+						rdfsSubClassOfReasoner, stableRandomVariableProvider).getFragment();
 
 				// check that all values for the path from our subject match the filter condition
 				String unionCondition1 = String.join("\n",

@@ -22,6 +22,7 @@ import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.shacl.ast.SparqlFragment;
 import org.eclipse.rdf4j.sail.shacl.ast.StatementMatcher;
 import org.eclipse.rdf4j.sail.shacl.ast.constraintcomponents.ConstraintComponent;
 import org.eclipse.rdf4j.sail.shacl.ast.targets.EffectiveTarget;
@@ -43,6 +44,7 @@ public class AllTargetsPlanNode implements PlanNode {
 			ConstraintComponent.Scope scope) {
 		String query = chain.stream()
 				.map(EffectiveTarget.EffectiveTargetObject::getQueryFragment)
+				.map(SparqlFragment::getFragment)
 				.reduce((a, b) -> a + "\n" + b)
 				.orElse("");
 

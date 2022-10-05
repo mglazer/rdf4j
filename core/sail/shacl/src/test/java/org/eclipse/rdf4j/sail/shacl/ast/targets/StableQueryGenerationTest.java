@@ -39,9 +39,9 @@ public class StableQueryGenerationTest {
 		TargetClass targetClass2 = new TargetClass(treeSet);
 
 		String targetQueryFragment1 = targetClass1.getTargetQueryFragment(null, new StatementMatcher.Variable("b"),
-				null, new StatementMatcher.StableRandomVariableProvider());
+				null, new StatementMatcher.StableRandomVariableProvider()).getFragment();
 		String targetQueryFragment2 = targetClass2.getTargetQueryFragment(null, new StatementMatcher.Variable("b"),
-				null, new StatementMatcher.StableRandomVariableProvider());
+				null, new StatementMatcher.StableRandomVariableProvider()).getFragment();
 
 		assertEquals(targetQueryFragment1, targetQueryFragment2);
 

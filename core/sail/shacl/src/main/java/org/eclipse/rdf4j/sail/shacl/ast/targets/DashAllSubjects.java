@@ -21,6 +21,7 @@ import org.eclipse.rdf4j.model.vocabulary.DASH;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.SHACL;
 import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.shacl.ast.SparqlFragment;
 import org.eclipse.rdf4j.sail.shacl.ast.StatementMatcher;
 import org.eclipse.rdf4j.sail.shacl.ast.constraintcomponents.ConstraintComponent;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.FilterTargetIsSubject;
@@ -87,7 +88,7 @@ public class DashAllSubjects extends Target {
 	}
 
 	@Override
-	public String getTargetQueryFragment(StatementMatcher.Variable subject, StatementMatcher.Variable object,
+	public SparqlFragment getTargetQueryFragment(StatementMatcher.Variable subject, StatementMatcher.Variable object,
 			RdfsSubClassOfReasoner rdfsSubClassOfReasoner,
 			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider) {
 		assert (subject == null);
@@ -95,8 +96,9 @@ public class DashAllSubjects extends Target {
 		String tempVar1 = stableRandomVariableProvider.next().asSparqlVariable();
 		String tempVar2 = stableRandomVariableProvider.next().asSparqlVariable();
 
-		return "?" + object.getName() + " " + tempVar1 + " " + tempVar2 + " .";
+		String queryFragment = object.asSparqlVariable() + " " + tempVar1 + " " + tempVar2 + " .";
 
+		return SparqlFragment.bgp(queryFragment, new StatementMatcher(object, null, null));
 	}
 
 }

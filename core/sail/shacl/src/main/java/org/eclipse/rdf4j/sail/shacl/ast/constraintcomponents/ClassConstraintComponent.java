@@ -131,7 +131,7 @@ public class ClassConstraintComponent extends AbstractConstraintComponent {
 					connectionsGroup.getBaseConnection(),
 					validationSettings.getDataGraph(),
 					path.getTargetQueryFragment(new StatementMatcher.Variable("a"), new StatementMatcher.Variable("c"),
-							connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider),
+							connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider).getFragment(),
 					false,
 					null,
 					BulkedExternalInnerJoin.getMapper("a", "c", scope, validationSettings.getDataGraph())
@@ -307,7 +307,7 @@ public class ClassConstraintComponent extends AbstractConstraintComponent {
 
 			StatementMatcher.Variable target = effectiveTarget.getTargetVar();
 
-			query += getFilter(connectionsGroup, target);
+			query += "\n" + getFilter(connectionsGroup, target);
 
 		} else {
 			value = new StatementMatcher.Variable("value");
@@ -315,10 +315,11 @@ public class ClassConstraintComponent extends AbstractConstraintComponent {
 			String pathQuery = getTargetChain().getPath()
 					.map(p -> p.getTargetQueryFragment(effectiveTarget.getTargetVar(), value,
 							connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider))
-					.orElseThrow(IllegalStateException::new);
+					.orElseThrow(IllegalStateException::new)
+					.getFragment();
 
-			query += pathQuery;
-			query += getFilter(connectionsGroup, value);
+			query += "\n" + pathQuery;
+			query += "\n" + getFilter(connectionsGroup, value);
 		}
 
 		List<StatementMatcher.Variable> allTargetVariables = effectiveTarget.getAllTargetVariables();
@@ -339,11 +340,11 @@ public class ClassConstraintComponent extends AbstractConstraintComponent {
 		}
 
 		String condition = allClasses.stream()
-				.map(c -> "EXISTS{?" + target.getName() + " a <" + c.stringValue() + ">}")
+				.map(c -> "EXISTS{" + target.asSparqlVariable() + " a <" + c.stringValue() + ">}")
 				.reduce((a, b) -> a + " || " + b)
 				.orElseThrow(IllegalStateException::new);
 
-		return "\nFILTER(!(" + condition + "))";
+		return "FILTER(!(" + condition + "))";
 	}
 
 	@Override

@@ -11,6 +11,7 @@
 
 package org.eclipse.rdf4j.sail.shacl.ast.constraintcomponents;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -118,7 +119,7 @@ public class DashHasValueInConstraintComponent extends AbstractConstraintCompone
 					connectionsGroup.getBaseConnection(),
 					validationSettings.getDataGraph(),
 					path.getTargetQueryFragment(new StatementMatcher.Variable("a"), new StatementMatcher.Variable("c"),
-							connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider),
+							connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider).getFragment(),
 					(b) -> new ValidationTuple(b.getValue("a"), b.getValue("c"), scope, true,
 							validationSettings.getDataGraph())
 			);
@@ -174,33 +175,31 @@ public class DashHasValueInConstraintComponent extends AbstractConstraintCompone
 			RdfsSubClassOfReasoner rdfsSubClassOfReasoner, Scope scope,
 			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider) {
 
-		List<StatementMatcher> statementMatchers = Collections.emptyList();
-
-		if (getTargetChain().getPath().isPresent()) {
-			Path path = getTargetChain().getPath().get();
-
-			statementMatchers = hasValueIn.stream()
-					.flatMap(v -> path.getStatementMatcher(subject, new StatementMatcher.Variable(v),
-							rdfsSubClassOfReasoner))
-					.collect(Collectors.toList());
-		}
-
 		if (scope == Scope.propertyShape) {
 			Path path = getTargetChain().getPath().get();
+
+			List<StatementMatcher> statementMatchers = new ArrayList<>();
 
 			String sparql = hasValueIn
 					.stream()
 					.map(value -> {
 
+						SparqlFragment targetQueryFragment = path.getTargetQueryFragment(subject, object,
+								rdfsSubClassOfReasoner, stableRandomVariableProvider);
+
+						var optimizedStatementMatchers = StatementMatcher.swap(
+								targetQueryFragment.getStatementMatchers(), object,
+								new StatementMatcher.Variable(value));
+
+						statementMatchers.addAll(optimizedStatementMatchers);
+
 						if (value.isIRI()) {
-							return "BIND(<" + value + "> as ?" + object.getName() + ")\n"
-									+ path.getTargetQueryFragment(subject, object, rdfsSubClassOfReasoner,
-											stableRandomVariableProvider);
+							return "BIND(<" + value + "> as " + object.asSparqlVariable() + ")\n"
+									+ targetQueryFragment.getFragment();
 						}
 						if (value.isLiteral()) {
-							return "BIND(" + value + " as ?" + object.getName() + ")\n"
-									+ path.getTargetQueryFragment(subject, object, rdfsSubClassOfReasoner,
-											stableRandomVariableProvider);
+							return "BIND(" + value + " as " + object.asSparqlVariable() + ")\n"
+									+ targetQueryFragment.getFragment();
 						}
 
 						throw new UnsupportedOperationException(
@@ -218,16 +217,16 @@ public class DashHasValueInConstraintComponent extends AbstractConstraintCompone
 					.stream()
 					.map(value -> {
 						if (value.isIRI()) {
-							return "?" + object.getName() + " = <" + value + ">";
+							return object.asSparqlVariable() + " = <" + value + ">";
 						} else if (value.isLiteral()) {
-							return "?" + object.getName() + " = " + value;
+							return object.asSparqlVariable() + " = " + value;
 						}
 						throw new UnsupportedOperationException(
 								"value was unsupported type: " + value.getClass().getSimpleName());
 					})
 					.reduce((a, b) -> a + " || " + b)
 					.orElseThrow(() -> new IllegalStateException("hasValueIn was empty"));
-			return SparqlFragment.filterCondition(sparql, statementMatchers);
+			return SparqlFragment.filterCondition(sparql, List.of());
 
 		}
 	}

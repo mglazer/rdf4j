@@ -69,26 +69,28 @@ public class UniqueLangConstraintComponent extends AbstractConstraintComponent {
 		String pathQuery1 = getTargetChain().getPath()
 				.map(p -> p.getTargetQueryFragment(effectiveTarget.getTargetVar(), value1,
 						connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider))
-				.orElseThrow(IllegalStateException::new);
+				.orElseThrow(IllegalStateException::new)
+				.getFragment();
 
-		query += pathQuery1;
+		query += "\n" + pathQuery1;
 
 		StatementMatcher.Variable value2 = stableRandomVariableProvider.next();
 
 		String pathQuery2 = getTargetChain().getPath()
 				.map(p -> p.getTargetQueryFragment(effectiveTarget.getTargetVar(), value2,
 						connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider))
-				.orElseThrow(IllegalStateException::new);
+				.orElseThrow(IllegalStateException::new)
+				.getFragment();
 
-		query += String.join("\n", trim("",
+		query += "\n" + String.join("\n", trim("",
 				"FILTER(",
 				"	EXISTS {",
 				"		" + pathQuery2,
 				"		FILTER(",
-				"			lang(?" + value2.getName() + ") != \"\" && ",
-				"			lang(?" + value1.getName() + ") != \"\" && ",
-				"			?" + value1.getName() + " != ?" + value2.getName() + " && ",
-				"			lang(?" + value1.getName() + ") = lang(?" + value2.getName() + ")",
+				"			lang(" + value2.asSparqlVariable() + ") != \"\" && ",
+				"			lang(" + value1.asSparqlVariable() + ") != \"\" && ",
+				"			" + value1.asSparqlVariable() + " != " + value2.asSparqlVariable() + " && ",
+				"			lang(" + value1.asSparqlVariable() + ") = lang(" + value2.asSparqlVariable() + ")",
 				"		)",
 				"	}",
 				")"));
@@ -132,7 +134,8 @@ public class UniqueLangConstraintComponent extends AbstractConstraintComponent {
 					validationSettings.getDataGraph(), path.get()
 							.getTargetQueryFragment(new StatementMatcher.Variable("a"),
 									new StatementMatcher.Variable("c"),
-									connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider),
+									connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider)
+							.getFragment(),
 					false,
 					null,
 					BulkedExternalInnerJoin.getMapper("a", "c", scope, validationSettings.getDataGraph())
@@ -178,7 +181,8 @@ public class UniqueLangConstraintComponent extends AbstractConstraintComponent {
 				connectionsGroup.getBaseConnection(),
 				validationSettings.getDataGraph(), path.get()
 						.getTargetQueryFragment(new StatementMatcher.Variable("a"), new StatementMatcher.Variable("c"),
-								connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider),
+								connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider)
+						.getFragment(),
 				false,
 				null,
 				BulkedExternalInnerJoin.getMapper("a", "c", scope, validationSettings.getDataGraph())

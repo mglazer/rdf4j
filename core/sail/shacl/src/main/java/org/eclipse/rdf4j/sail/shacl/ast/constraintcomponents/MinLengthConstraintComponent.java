@@ -22,6 +22,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.vocabulary.SHACL;
 import org.eclipse.rdf4j.sail.shacl.SourceConstraintComponent;
+import org.eclipse.rdf4j.sail.shacl.ast.StatementMatcher;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.FilterPlanNode;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.MinLengthFilter;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.PlanNode;
@@ -41,11 +42,11 @@ public class MinLengthConstraintComponent extends SimpleAbstractConstraintCompon
 	}
 
 	@Override
-	String getSparqlFilterExpression(String varName, boolean negated) {
+	String getSparqlFilterExpression(StatementMatcher.Variable variable, boolean negated) {
 		if (negated) {
-			return "STRLEN(STR(?" + varName + ")) >= " + minLength;
+			return "STRLEN(STR(" + variable.asSparqlVariable() + ")) >= " + minLength;
 		} else {
-			return "STRLEN(STR(?" + varName + ")) < " + minLength;
+			return "STRLEN(STR(" + variable.asSparqlVariable() + ")) < " + minLength;
 		}
 	}
 

@@ -19,7 +19,7 @@ public interface Targetable {
 	Stream<StatementMatcher> getStatementMatcher(StatementMatcher.Variable subject, StatementMatcher.Variable object,
 			RdfsSubClassOfReasoner rdfsSubClassOfReasoner);
 
-	String getTargetQueryFragment(StatementMatcher.Variable subject, StatementMatcher.Variable object,
+	SparqlFragment getTargetQueryFragment(StatementMatcher.Variable subject, StatementMatcher.Variable object,
 			RdfsSubClassOfReasoner rdfsSubClassOfReasoner,
 			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider);
 

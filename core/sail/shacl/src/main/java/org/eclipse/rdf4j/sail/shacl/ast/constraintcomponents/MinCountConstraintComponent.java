@@ -106,7 +106,8 @@ public class MinCountConstraintComponent extends AbstractConstraintComponent {
 				validationSettings.getDataGraph(), getTargetChain().getPath()
 						.get()
 						.getTargetQueryFragment(new StatementMatcher.Variable("a"), new StatementMatcher.Variable("c"),
-								connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider),
+								connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider)
+						.getFragment(),
 				(b) -> new ValidationTuple(b.getValue("a"), b.getValue("c"), scope, true,
 						validationSettings.getDataGraph())
 		);
@@ -149,9 +150,10 @@ public class MinCountConstraintComponent extends AbstractConstraintComponent {
 			String pathQuery = getTargetChain().getPath()
 					.map(p -> p.getTargetQueryFragment(effectiveTarget.getTargetVar(), value,
 							connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider))
-					.orElseThrow(IllegalStateException::new);
+					.orElseThrow(IllegalStateException::new)
+					.getFragment();
 
-			query += "\nFILTER(NOT EXISTS{" + pathQuery + "})";
+			query += "\nFILTER(NOT EXISTS{\n" + pathQuery + "\n})";
 		} else {
 
 			StringBuilder condition = new StringBuilder();
@@ -164,7 +166,8 @@ public class MinCountConstraintComponent extends AbstractConstraintComponent {
 				String pathQuery = getTargetChain().getPath()
 						.map(p -> p.getTargetQueryFragment(effectiveTarget.getTargetVar(), value,
 								connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider))
-						.orElseThrow(IllegalStateException::new);
+						.orElseThrow(IllegalStateException::new)
+						.getFragment();
 
 				condition.append(pathQuery).append("\n");
 			}
@@ -188,7 +191,7 @@ public class MinCountConstraintComponent extends AbstractConstraintComponent {
 
 			String innerCondition = String.join(" && ", notEquals);
 
-			query += "\nFILTER(NOT EXISTS{" + condition + "FILTER(" + innerCondition + ")\n})";
+			query += "\nFILTER(NOT EXISTS{\n" + condition.toString().trim() + "\nFILTER(" + innerCondition + ")\n})";
 		}
 
 		List<StatementMatcher.Variable> allTargetVariables = effectiveTarget.getAllTargetVariables();

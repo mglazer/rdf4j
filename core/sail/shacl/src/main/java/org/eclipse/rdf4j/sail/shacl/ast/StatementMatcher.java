@@ -136,6 +136,60 @@ public class StatementMatcher {
 
 	}
 
+	public static List<StatementMatcher> swap(List<StatementMatcher> statementMatchers, Variable existingVariable,
+			Variable newVariable) {
+		if (statementMatchers.size() == 0) {
+			return List.of();
+		}
+		if (statementMatchers.size() == 1) {
+			StatementMatcher statementMatcher = statementMatchers.get(0);
+			return List.of(statementMatcher.swap(existingVariable, newVariable));
+		}
+
+		return statementMatchers
+				.stream()
+				.map(statementMatcher -> statementMatcher.swap(existingVariable, newVariable))
+				.collect(Collectors.toList());
+
+	}
+
+	private StatementMatcher swap(Variable existingVariable, Variable newVariable) {
+		String subjectName = this.subjectName;
+		Resource subjectValue = this.subjectValue;
+		String predicateName = this.predicateName;
+		IRI predicateValue = this.predicateValue;
+		String objectName = this.objectName;
+		Value objectValue = this.objectValue;
+		boolean changed = false;
+
+		if (Objects.equals(existingVariable.name, subjectName)
+				&& Objects.equals(existingVariable.value, subjectValue)) {
+			changed = true;
+			subjectName = newVariable.name;
+			subjectValue = (Resource) newVariable.value;
+		}
+
+		if (Objects.equals(existingVariable.name, predicateName)
+				&& Objects.equals(existingVariable.value, predicateValue)) {
+			changed = true;
+			predicateName = newVariable.name;
+			predicateValue = (IRI) newVariable.value;
+		}
+
+		if (Objects.equals(existingVariable.name, objectName) && Objects.equals(existingVariable.value, objectValue)) {
+			changed = true;
+			objectName = newVariable.name;
+			objectValue = newVariable.value;
+		}
+
+		if (changed) {
+			return new StatementMatcher(subjectName, subjectValue, predicateName, predicateValue, objectName,
+					objectValue);
+		}
+		return this;
+
+	}
+
 	private boolean covers(StatementMatcher s) {
 
 		if (subjectIsWildcard()) {

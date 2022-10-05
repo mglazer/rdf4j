@@ -22,6 +22,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.vocabulary.SHACL;
+import org.eclipse.rdf4j.sail.shacl.ast.SparqlFragment;
 import org.eclipse.rdf4j.sail.shacl.ast.StatementMatcher;
 import org.eclipse.rdf4j.sail.shacl.ast.constraintcomponents.ConstraintComponent;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.PlanNode;
@@ -75,13 +76,13 @@ public class TargetNode extends Target {
 	}
 
 	@Override
-	public String getTargetQueryFragment(StatementMatcher.Variable subject, StatementMatcher.Variable object,
+	public SparqlFragment getTargetQueryFragment(StatementMatcher.Variable subject, StatementMatcher.Variable object,
 			RdfsSubClassOfReasoner rdfsSubClassOfReasoner,
 			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider) {
 		assert subject == null;
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("VALUES ( ?").append(object.getName()).append(" ) {\n");
+		sb.append("VALUES ( ").append(object.asSparqlVariable()).append(" ) {\n");
 
 		targetNodes.stream()
 				.map(targetNode -> {
@@ -106,7 +107,7 @@ public class TargetNode extends Target {
 
 		sb.append("}");
 
-		return sb.toString();
+		return SparqlFragment.bgp(sb.toString());
 	}
 
 	@Override

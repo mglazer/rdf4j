@@ -11,8 +11,10 @@
 
 package org.eclipse.rdf4j.sail.shacl.ast.targets;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.IRI;
@@ -20,6 +22,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.vocabulary.SHACL;
 import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.shacl.ast.SparqlFragment;
 import org.eclipse.rdf4j.sail.shacl.ast.StatementMatcher;
 import org.eclipse.rdf4j.sail.shacl.ast.constraintcomponents.ConstraintComponent;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.EmptyNode;
@@ -93,19 +96,29 @@ public class TargetObjectsOf extends Target {
 	}
 
 	@Override
-	public String getTargetQueryFragment(StatementMatcher.Variable subject, StatementMatcher.Variable object,
+	public SparqlFragment getTargetQueryFragment(StatementMatcher.Variable subject, StatementMatcher.Variable object,
 			RdfsSubClassOfReasoner rdfsSubClassOfReasoner,
 			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider) {
 		assert (subject == null);
 
-		String tempVar = stableRandomVariableProvider.next().asSparqlVariable();
+		StatementMatcher.Variable tempVar = stableRandomVariableProvider.next();
+
+		List<StatementMatcher> statementMatchers = targetObjectsOf.stream()
+				.map(t -> new StatementMatcher(
+						tempVar,
+						new StatementMatcher.Variable(t),
+						object)
+				)
+				.collect(Collectors.toList());
 
 		if (targetObjectsOf.size() == 1) {
 
-			return targetObjectsOf.stream()
-					.map(t -> tempVar + " <" + t + "> ?" + object.getName() + " .")
+			String queryFragment = targetObjectsOf.stream()
+					.map(t -> tempVar.asSparqlVariable() + " <" + t + "> " + object.asSparqlVariable() + " .")
 					.reduce((a, b) -> a + "\n" + b)
 					.orElse("");
+
+			return SparqlFragment.bgp(queryFragment, statementMatchers);
 
 		} else {
 
@@ -114,8 +127,14 @@ public class TargetObjectsOf extends Target {
 					.reduce((a, b) -> a + " , " + b)
 					.orElse("");
 
-			return tempVar + " ?predicatefjhfuewhw ?" + object.getName() + " .\n" +
-					"FILTER(?predicatefjhfuewhw in (" + in + "))";
+			StatementMatcher.Variable tempVarForIn = stableRandomVariableProvider.next();
+
+			String queryFragment = tempVar.asSparqlVariable() + " " + tempVarForIn.asSparqlVariable()
+					+ object.asSparqlVariable() + " .\n" +
+					"FILTER(" + tempVarForIn.asSparqlVariable() + " in (" + in + "))";
+
+			return SparqlFragment.bgp(queryFragment, statementMatchers);
+
 		}
 
 	}

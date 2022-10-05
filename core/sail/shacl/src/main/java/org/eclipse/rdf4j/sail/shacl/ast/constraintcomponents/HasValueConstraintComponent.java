@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
@@ -110,7 +109,7 @@ public class HasValueConstraintComponent extends AbstractConstraintComponent {
 					connectionsGroup.getBaseConnection(),
 					validationSettings.getDataGraph(),
 					path.getTargetQueryFragment(new StatementMatcher.Variable("a"), new StatementMatcher.Variable("c"),
-							connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider),
+							connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider).getFragment(),
 					(b) -> new ValidationTuple(b.getValue("a"), b.getValue("c"), scope, true,
 							validationSettings.getDataGraph())
 			);
@@ -166,30 +165,25 @@ public class HasValueConstraintComponent extends AbstractConstraintComponent {
 			RdfsSubClassOfReasoner rdfsSubClassOfReasoner, Scope scope,
 			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider) {
 
-		List<StatementMatcher> statementMatchers = Collections.emptyList();
-
-		if (getTargetChain().getPath().isPresent()) {
-			Path path = getTargetChain().getPath().get();
-
-			statementMatchers = path
-					.getStatementMatcher(subject, new StatementMatcher.Variable(hasValue), rdfsSubClassOfReasoner)
-					.collect(Collectors.toList());
-		}
-
 		if (scope == Scope.propertyShape) {
+
 			Path path = getTargetChain().getPath().get();
 
+			SparqlFragment targetQueryFragment = path.getTargetQueryFragment(subject, object, rdfsSubClassOfReasoner,
+					stableRandomVariableProvider);
 			if (hasValue.isIRI()) {
-				return SparqlFragment.bgp("BIND(<" + hasValue + "> as ?" + object.getName() + ")\n"
-						+ path.getTargetQueryFragment(subject, object, rdfsSubClassOfReasoner,
-								stableRandomVariableProvider),
-						statementMatchers);
+				return SparqlFragment.bgp("BIND(<" + hasValue + "> as " + object.asSparqlVariable() + ")\n"
+						+ targetQueryFragment.getFragment(),
+						StatementMatcher.swap(targetQueryFragment.getStatementMatchers(), object,
+								new StatementMatcher.Variable(hasValue))
+				);
 			}
 			if (hasValue.isLiteral()) {
-				return SparqlFragment.bgp("BIND(" + hasValue.toString() + " as ?" + object.getName() + ")\n"
-						+ path.getTargetQueryFragment(subject, object, rdfsSubClassOfReasoner,
-								stableRandomVariableProvider),
-						statementMatchers);
+				return SparqlFragment.bgp("BIND(" + hasValue.toString() + " as " + object.asSparqlVariable() + ")\n"
+						+ targetQueryFragment.getFragment(),
+						StatementMatcher.swap(targetQueryFragment.getStatementMatchers(), object,
+								new StatementMatcher.Variable(hasValue))
+				);
 			}
 
 			throw new UnsupportedOperationException(
@@ -197,10 +191,10 @@ public class HasValueConstraintComponent extends AbstractConstraintComponent {
 
 		} else {
 			if (hasValue.isIRI()) {
-				return SparqlFragment.filterCondition("?" + object.getName() + " = <" + hasValue + ">",
-						statementMatchers);
+				return SparqlFragment.filterCondition(object.asSparqlVariable() + " = <" + hasValue + ">",
+						List.of());
 			} else if (hasValue.isLiteral()) {
-				return SparqlFragment.filterCondition("?" + object.getName() + " = " + hasValue, statementMatchers);
+				return SparqlFragment.filterCondition(object.asSparqlVariable() + " = " + hasValue, List.of());
 			}
 			throw new UnsupportedOperationException(
 					"value was unsupported type: " + hasValue.getClass().getSimpleName());
@@ -220,7 +214,7 @@ public class HasValueConstraintComponent extends AbstractConstraintComponent {
 
 		if (scope == Scope.nodeShape) {
 
-			query += "FILTER(?" + effectiveTarget.getTargetVar().getName() + " != "
+			query += "\n" + "FILTER(" + effectiveTarget.getTargetVar().asSparqlVariable() + " != "
 					+ stringRepresentationOfValue(hasValue) + ")";
 
 		} else {
@@ -229,12 +223,13 @@ public class HasValueConstraintComponent extends AbstractConstraintComponent {
 			String pathQuery = getTargetChain().getPath()
 					.map(p -> p.getTargetQueryFragment(effectiveTarget.getTargetVar(), value,
 							connectionsGroup.getRdfsSubClassOfReasoner(), stableRandomVariableProvider))
-					.orElseThrow(IllegalStateException::new);
+					.orElseThrow(IllegalStateException::new)
+					.getFragment();
 
-			query += "FILTER( " +
+			query += "\n" + "FILTER( " +
 					"NOT EXISTS{" +
-					"	BIND(" + stringRepresentationOfValue(hasValue) + " as ?" + value.getName() + ")\n" +
-					pathQuery +
+					"	BIND(" + stringRepresentationOfValue(hasValue) + " as " + value.asSparqlVariable() + ")\n" +
+					pathQuery + "\n" +
 					"})";
 
 		}

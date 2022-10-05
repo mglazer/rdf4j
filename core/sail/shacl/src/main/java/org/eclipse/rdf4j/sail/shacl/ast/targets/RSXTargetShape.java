@@ -110,7 +110,7 @@ public class RSXTargetShape extends Target {
 		StatementMatcher.Variable variable = stableRandomVariableProvider.next();
 
 		String query = getTargetQueryFragment(null, variable, connectionsGroup.getRdfsSubClassOfReasoner(),
-				stableRandomVariableProvider);
+				stableRandomVariableProvider).getFragment();
 
 		// TODO: this is a slow way to solve this problem! We should use bulk operations.
 		return new ExternalFilterByQuery(connectionsGroup.getBaseConnection(), dataGraph, parent, query, variable,
@@ -130,16 +130,14 @@ public class RSXTargetShape extends Target {
 	}
 
 	@Override
-	public String getTargetQueryFragment(StatementMatcher.Variable subject, StatementMatcher.Variable object,
+	public SparqlFragment getTargetQueryFragment(StatementMatcher.Variable subject, StatementMatcher.Variable object,
 			RdfsSubClassOfReasoner rdfsSubClassOfReasoner,
 			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider) {
 		assert (subject == null);
 
 		return this.targetShape
 				.buildSparqlValidNodes_rsx_targetShape(subject, object, rdfsSubClassOfReasoner, null,
-						stableRandomVariableProvider)
-				.getFragment();
-
+						stableRandomVariableProvider);
 	}
 
 	@Override

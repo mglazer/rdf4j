@@ -269,11 +269,11 @@ public class BindSelect implements PlanNode {
 		if (direction == EffectiveTarget.Extend.right) {
 
 			for (int i = 0; i < targetChainSize; i++) {
-				values.append("?").append(vars.get(i).getName()).append(" ");
+				values.append(vars.get(i).asSparqlVariable()).append(" ");
 			}
 		} else if (direction == EffectiveTarget.Extend.left) {
 			for (int i = vars.size() - targetChainSize; i < vars.size(); i++) {
-				values.append("?").append(vars.get(i).getName()).append(" ");
+				values.append(vars.get(i).asSparqlVariable()).append(" ");
 			}
 
 		} else {
