@@ -73,8 +73,7 @@ public class TargetClass extends Target {
 		return Unique.getInstance(planNode, false);
 	}
 
-	@Override
-	public String getQueryFragment(String subjectVariable, String objectVariable,
+	String getQueryFragment(String subjectVariable, String objectVariable,
 			RdfsSubClassOfReasoner rdfsSubClassOfReasoner,
 			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider) {
 		Set<Resource> targets = targetClass;

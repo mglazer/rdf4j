@@ -65,21 +65,6 @@ public class DashAllSubjects extends Target {
 	}
 
 	@Override
-	public String getQueryFragment(String subjectVariable, String objectVariable,
-			RdfsSubClassOfReasoner rdfsSubClassOfReasoner,
-			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider) {
-
-//		return targetObjectsOf.stream()
-//			.map(target -> "\n{ BIND(<" + target + "> as " + tempVar + ")\n" + objectVariable + " "
-//				+ tempVar + " " + subjectVariable
-//				+ ". }\n")
-//			.reduce((a, b) -> a + " UNION " + b)
-//			.get();
-
-		throw new UnsupportedOperationException("Not sure what calls this code!");
-	}
-
-	@Override
 	public PlanNode getTargetFilter(ConnectionsGroup connectionsGroup, Resource[] dataGraph,
 			PlanNode parent) {
 		return new FilterTargetIsSubject(connectionsGroup.getBaseConnection(), dataGraph, parent)

@@ -53,39 +53,6 @@ public class TargetNode extends Target {
 	}
 
 	@Override
-	public String getQueryFragment(String subjectVariable, String objectVariable,
-			RdfsSubClassOfReasoner rdfsSubClassOfReasoner,
-			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("VALUES ( ").append(subjectVariable).append(" ) {\n");
-
-		targetNodes.stream()
-				.map(targetNode -> {
-					if (targetNode.isResource()) {
-						return "<" + targetNode + ">";
-					}
-					if (targetNode.isLiteral()) {
-						IRI datatype = ((Literal) targetNode).getDatatype();
-						if (datatype == null) {
-							return "\"" + targetNode.stringValue() + "\"";
-						}
-						if (((Literal) targetNode).getLanguage().isPresent()) {
-							return "\"" + targetNode.stringValue() + "\"@" + ((Literal) targetNode).getLanguage().get();
-						}
-						return "\"" + targetNode.stringValue() + "\"^^<" + datatype.stringValue() + ">";
-					}
-
-					throw new IllegalStateException(targetNode.getClass().getSimpleName());
-
-				})
-				.forEach(targetNode -> sb.append("( ").append(targetNode).append(" )\n"));
-
-		sb.append("}");
-
-		return sb.toString();
-	}
-
-	@Override
 	public PlanNode getTargetFilter(ConnectionsGroup connectionsGroup, Resource[] dataGraph,
 			PlanNode parent) {
 		return new SetFilterNode(targetNodes, parent, 0, true);

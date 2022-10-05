@@ -22,18 +22,16 @@ import java.util.stream.Collectors;
 public class SparqlFragment {
 
 	final static Pattern REGEX_INDENT = Pattern.compile("(?m)^");
+	// This is currently experimental!
+	private static final boolean USE_UNION_PRESERVING_JOIN = false;
 
 	private final String fragment;
 	private final List<String> unionFragments = new ArrayList<>();
+	private final List<StatementMatcher> statementMatchers = new ArrayList<>();
 
 	private boolean filterCondition;
 	private boolean bgp;
 	private boolean union;
-
-	// This is currently experimental!
-	private static final boolean USE_UNION_PRESERVING_JOIN = false;
-
-	private final List<StatementMatcher> statementMatchers = new ArrayList<>();
 
 	private SparqlFragment(List<String> unionFragments, List<StatementMatcher> statementMatchers) {
 		this.fragment = null;

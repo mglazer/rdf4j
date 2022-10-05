@@ -72,20 +72,6 @@ public class TargetObjectsOf extends Target {
 	}
 
 	@Override
-	public String getQueryFragment(String subjectVariable, String objectVariable,
-			RdfsSubClassOfReasoner rdfsSubClassOfReasoner,
-			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider) {
-		String tempVar = stableRandomVariableProvider.next().asSparqlVariable();
-
-		return targetObjectsOf.stream()
-				.map(target -> "{\nBIND(<" + target + "> as " + tempVar + ")\n" + objectVariable + " "
-						+ tempVar + " " + subjectVariable
-						+ ".\n}")
-				.reduce((a, b) -> a + " UNION " + b)
-				.get();
-	}
-
-	@Override
 	public PlanNode getTargetFilter(ConnectionsGroup connectionsGroup, Resource[] dataGraph,
 			PlanNode parent) {
 		return new FilterByPredicate(connectionsGroup.getBaseConnection(), targetObjectsOf, parent,

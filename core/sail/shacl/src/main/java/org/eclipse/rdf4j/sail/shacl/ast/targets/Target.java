@@ -28,10 +28,6 @@ public abstract class Target implements Exportable, Targetable {
 	public abstract PlanNode getAdded(ConnectionsGroup connectionsGroup, Resource[] dataGraph,
 			ConstraintComponent.Scope scope);
 
-	public abstract String getQueryFragment(String subjectVariable, String objectVariable,
-			RdfsSubClassOfReasoner rdfsSubClassOfReasoner,
-			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider);
-
 	public abstract PlanNode getTargetFilter(ConnectionsGroup connectionsGroup, Resource[] dataGraph,
 			PlanNode parent);
 
