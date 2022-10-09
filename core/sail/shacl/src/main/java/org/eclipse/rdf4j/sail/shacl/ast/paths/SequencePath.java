@@ -11,8 +11,10 @@
 
 package org.eclipse.rdf4j.sail.shacl.ast.paths;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,7 +54,7 @@ public class SequencePath extends Path {
 
 		List<Resource> values = sequence.stream().map(Path::getId).collect(Collectors.toList());
 
-		if (!model.contains(getId(), null, null)) {
+		if (!model.contains(id, null, null)) {
 			ShaclAstLists.listToRdf(values, id, model);
 		}
 
@@ -68,14 +70,39 @@ public class SequencePath extends Path {
 
 	@Override
 	public boolean isSupported() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public SparqlFragment getTargetQueryFragment(StatementMatcher.Variable subject, StatementMatcher.Variable object,
 			RdfsSubClassOfReasoner rdfsSubClassOfReasoner,
 			StatementMatcher.StableRandomVariableProvider stableRandomVariableProvider) {
-		throw new ShaclUnsupportedException();
+
+		String variablePrefix = getVariablePrefix(subject, object);
+
+		List<SparqlFragment> sparqlFragments = new ArrayList<>(sequence.size());
+
+		StatementMatcher.Variable head = subject;
+		StatementMatcher.Variable tail = null;
+
+		for (int i = 0; i < sequence.size(); i++) {
+			if (tail != null) {
+				head = tail;
+			}
+			if (i + 1 == sequence.size()) {
+				// last element
+				tail = object;
+			} else {
+				tail = new StatementMatcher.Variable(variablePrefix + i);
+			}
+
+			Path path = sequence.get(i);
+			SparqlFragment targetQueryFragment = path.getTargetQueryFragment(head, tail, rdfsSubClassOfReasoner,
+					stableRandomVariableProvider);
+			sparqlFragments.add(targetQueryFragment);
+		}
+
+		return SparqlFragment.join(sparqlFragments);
 	}
 
 }

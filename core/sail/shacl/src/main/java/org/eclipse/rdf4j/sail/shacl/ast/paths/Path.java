@@ -20,6 +20,7 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.sail.shacl.ast.Exportable;
 import org.eclipse.rdf4j.sail.shacl.ast.Identifiable;
 import org.eclipse.rdf4j.sail.shacl.ast.ShaclUnsupportedException;
+import org.eclipse.rdf4j.sail.shacl.ast.StatementMatcher;
 import org.eclipse.rdf4j.sail.shacl.ast.Targetable;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.PlanNode;
 import org.eclipse.rdf4j.sail.shacl.ast.planNodes.PlanNodeWrapper;
@@ -86,4 +87,9 @@ public abstract class Path implements Identifiable, Exportable, Targetable {
 	 * @return true if feature is currently supported by the ShaclSail
 	 */
 	public abstract boolean isSupported();
+
+	public String getVariablePrefix(StatementMatcher.Variable subject, StatementMatcher.Variable object) {
+		String className = this.getClass().getSimpleName();
+		return subject.getName() + "_" + (object != null ? object.getName() : "null") + "_" + className + "_";
+	}
 }
