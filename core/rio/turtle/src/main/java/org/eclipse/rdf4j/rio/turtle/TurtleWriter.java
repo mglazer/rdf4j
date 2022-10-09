@@ -20,6 +20,7 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -334,6 +335,15 @@ public class TurtleWriter extends AbstractRDFWriter implements CharSink {
 	 */
 	private boolean isWellFormedCollection(Resource subj) {
 		try {
+			Iterator<Statement> referencedAsObject = bufferedStatements.getStatements(null, null, subj).iterator();
+			if (referencedAsObject.hasNext()) {
+				referencedAsObject.next();
+				if (referencedAsObject.hasNext()) {
+					// we do not support pretty printing a list if it is used in more than one place
+					return false;
+				}
+			}
+
 			// first check is if we can process as a collection. This is not enough to establish it's well-formed but a
 			// useful first step.
 			final Model collection = RDFCollections.getCollection(bufferedStatements, subj,

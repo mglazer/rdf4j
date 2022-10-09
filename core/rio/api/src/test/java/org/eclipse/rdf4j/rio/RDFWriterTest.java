@@ -1806,6 +1806,34 @@ public abstract class RDFWriterTest {
 	}
 
 	@Test
+	public void testListUsedInMultiplePlaces() throws Exception {
+		Model input = new LinkedHashModel();
+		Resource _1 = vf.createBNode();
+		input.add(uri1, uri2, _1);
+		input.add(_1, RDF.FIRST, bnode);
+		input.add(bnode, RDF.TYPE, RDFS.RESOURCE);
+		input.add(_1, RDF.REST, RDF.NIL);
+		input.add(uri3, uri4, _1);
+
+		ByteArrayOutputStream outputWriter = new ByteArrayOutputStream();
+		RDFWriter rdfWriter = rdfWriterFactory.getWriter(outputWriter);
+		setupWriterConfig(rdfWriter.getWriterConfig());
+		rdfWriter.startRDF();
+		for (Statement st : input) {
+			rdfWriter.handleStatement(st);
+		}
+		rdfWriter.endRDF();
+		logger.debug(new String(outputWriter.toByteArray()));
+		ByteArrayInputStream inputReader = new ByteArrayInputStream(outputWriter.toByteArray());
+		RDFParser rdfParser = rdfParserFactory.getParser();
+		setupParserConfig(rdfParser.getParserConfig());
+		Model parsedOutput = new LinkedHashModel();
+		rdfParser.setRDFHandler(new StatementCollector(parsedOutput));
+		rdfParser.parse(inputReader, "");
+		assertSameModel(input, parsedOutput);
+	}
+
+	@Test
 	public void testBogusIRICharacters() throws Exception {
 		Model model = new LinkedHashModel();
 		String illegal = " <>^|\t\n\r\"`";
