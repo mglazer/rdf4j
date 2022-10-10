@@ -176,7 +176,8 @@ public class ShaclSail extends ShaclSailBaseConfiguration {
 
 	// lockManager used for read/write locks used to synchronize validation so that SNAPSHOT isolation is sufficient to
 	// achieve SERIALIZABLE isolation wrt. validation
-	final ReadPrefReadWriteLockManager serializableValidationLock = new ReadPrefReadWriteLockManager();
+	final ReadPrefReadWriteLockManager serializableValidationLock = new ReadPrefReadWriteLockManager(
+			"ShaclSail_SerializableValidation");
 
 	// shapesCacheLockManager used to keep track of changes to the cache
 	private StampedLockManager.Cache<List<ContextWithShapes>> cachedShapes;

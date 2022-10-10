@@ -95,171 +95,17 @@ abstract public class AbstractShaclTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractShaclTest.class);
 
-	private static final List<String> testCasePaths = Stream.of(
-			"test-cases/and-or/datatypeNodeShape",
-			"test-cases/class/allObjects",
-			"test-cases/class/allSubjects",
-			"test-cases/class/and",
-			"test-cases/class/and2",
-			"test-cases/class/complexTargetShape",
-			"test-cases/class/complexTargetShape2",
-			"test-cases/class/multipleClass",
-			"test-cases/class/not",
-			"test-cases/class/not2",
-			"test-cases/class/notAnd",
-			"test-cases/class/notNotSimple",
-			"test-cases/class/simple",
-			"test-cases/class/simpleTargetShape",
-//		"test-cases/class/sparqlTarget",
-//		"test-cases/class/sparqlTargetNot",
-			"test-cases/class/subclass",
-			"test-cases/class/targetNode",
-			"test-cases/class/validateTarget",
-			"test-cases/class/validateTargetNot",
-			"test-cases/complex/dcat",
-			"test-cases/complex/foaf",
-			"test-cases/complex/targetShapeAndQualifiedShape",
-			"test-cases/complex/mms",
-//		"test-cases/complex/sparqlTarget",
-			"test-cases/datatype/allObjects",
-			"test-cases/datatype/not",
-			"test-cases/datatype/notNodeShape",
-			"test-cases/datatype/notNodeShapeAnd",
-			"test-cases/datatype/notNodeShapeTargetShape",
-			"test-cases/datatype/notNot",
-			"test-cases/datatype/notSimpleNodeShape",
-			"test-cases/datatype/notTargetNode",
-			"test-cases/datatype/notTargetShape",
-			"test-cases/datatype/simple",
-			"test-cases/datatype/simpleDefaultGraph",
-			"test-cases/datatype/simpleNamedGraph",
-			"test-cases/datatype/simpleNested",
-			"test-cases/datatype/simpleNested2",
-			"test-cases/datatype/simpleNode",
-			"test-cases/datatype/simpleNodeNested",
-//		"test-cases/datatype/sparqlTarget",
-			"test-cases/datatype/targetNode",
-			"test-cases/datatype/targetNode2",
-			"test-cases/datatype/targetNodeLang",
-			"test-cases/datatype/targetObjectsOf",
-			"test-cases/datatype/targetSubjectsOf",
-			"test-cases/datatype/targetSubjectsOfSingle",
-			"test-cases/deactivated/nodeshape",
-			"test-cases/deactivated/or",
-			"test-cases/deactivated/propertyshape",
-			"test-cases/functionalProperty/multipleFunctional",
-			"test-cases/functionalProperty/multipleFunctionalOr",
-			"test-cases/functionalProperty/singleFunctional",
-			"test-cases/hasValue/and",
-			"test-cases/hasValue/not",
-			"test-cases/hasValue/not2",
-			"test-cases/hasValueIn/and",
-			"test-cases/hasValueIn/not",
-			"test-cases/hasValueIn/not2",
-			"test-cases/hasValueIn/simple",
-			"test-cases/hasValueIn/targetNode",
-			"test-cases/hasValueIn/targetNode2",
-			"test-cases/implicitTargetClass/simple",
-			"test-cases/implicitTargetClass/simpleDefaultGraph",
-			"test-cases/in/notAnd",
-			"test-cases/in/notOr",
-			"test-cases/in/simple",
-			"test-cases/languageIn/simple",
-			"test-cases/maxCount/not",
-			"test-cases/maxCount/nested",
-			"test-cases/maxCount/nestedCombination",
-			"test-cases/maxCount/not2",
-			"test-cases/maxCount/notNot",
-			"test-cases/maxCount/simple",
-			"test-cases/maxCount/simpleInversePath",
-//		"test-cases/maxCount/sparqlTarget",
-			"test-cases/maxCount/targetNode",
-			"test-cases/maxCount/zeroAndNegative",
-			"test-cases/maxExclusive/simple",
-			"test-cases/maxExclusiveMinLength/not",
-			"test-cases/maxExclusiveMinLength/simple",
-			"test-cases/maxInclusive/simple",
-			"test-cases/maxLength/simple",
-			"test-cases/minCount/minus1",
-			"test-cases/minCount/not",
-			"test-cases/minCount/simple",
-			"test-cases/minCount/targetNode",
-			"test-cases/minCount/zero",
-			"test-cases/minExclusive/dateVsTime",
-			"test-cases/minExclusive/simple",
-			"test-cases/minInclusive/simple",
-			"test-cases/minLength/simple",
-			"test-cases/nodeKind/not",
-			"test-cases/nodeKind/simple",
-			"test-cases/nodeKind/simpleInversePath",
-			"test-cases/nodeKind/targetNode",
-			"test-cases/nodeKind/validateTarget",
-			"test-cases/or/class",
-			"test-cases/or/class2",
-			"test-cases/or/class2InversePath",
-			"test-cases/or/classValidateTarget",
-			"test-cases/or/datatype",
-			"test-cases/or/datatype2",
-			"test-cases/or/datatypeDifferentPaths",
-			"test-cases/or/datatypeNodeShape",
-			"test-cases/or/datatypeTargetNode",
-			"test-cases/or/implicitAnd",
-//		"test-cases/or/implicitAndSparqlTarget",
-			"test-cases/or/inheritance",
-			"test-cases/or/inheritance-deep",
-			"test-cases/or/inheritanceNodeShape",
-			"test-cases/or/maxCount",
-			"test-cases/or/minCount",
-			"test-cases/or/minCountDifferentPath",
-			"test-cases/or/minCountMaxCount",
-			"test-cases/or/multiple",
-			"test-cases/or/nodeKindMinLength",
-			"test-cases/or/nodeKindValidateTarget",
-			"test-cases/path/alternativePath",
-			"test-cases/path/minCount",
-			"test-cases/path/sequencePath",
-			"test-cases/pattern/multiple",
-			"test-cases/pattern/simple",
-			"test-cases/propertyShapeWithTarget/simple",
-			"test-cases/uniqueLang/not",
-			"test-cases/uniqueLang/simple",
-			"test-cases/datatype/notNestedPropertyShape",
-			"test-cases/datatype/notNestedPropertyShape2",
-			"test-cases/hasValue/simple",
-			"test-cases/hasValue/and2",
-			"test-cases/hasValue/targetNode",
-			"test-cases/hasValue/targetNode2",
-			"test-cases/hasValueIn/simple",
-			"test-cases/hasValueIn/and",
-			"test-cases/hasValueIn/not",
-			"test-cases/hasValueIn/not2",
-			"test-cases/hasValueIn/targetNode",
-			"test-cases/hasValueIn/targetNode2",
-			"test-cases/languageIn/subtags",
-			"test-cases/languageIn/subtags2",
-			"test-cases/hasValueIn/targetNode2",
-			"test-cases/hasValue/or",
-			"test-cases/hasValue/targetShapeOr",
-			"test-cases/hasValue/targetShapeAnd",
-			"test-cases/hasValue/targetShapeAnd2",
-			"test-cases/hasValue/targetShapeAnd3",
-			"test-cases/hasValue/targetShapeAndOr",
-			"test-cases/hasValue/targetShapeAndOr2",
-			"test-cases/hasValue/targetShapeAndOr3",
-			"test-cases/hasValueIn/targetShapeOr",
-			"test-cases/hasValueIn/or",
-			"test-cases/class/simpleNested",
-			"test-cases/class/nestedNode",
-			"test-cases/qualifiedShape/minCountSimple",
-			"test-cases/qualifiedShape/maxCountSimple",
-			"test-cases/uniqueLang/complex",
-			"test-cases/qualifiedShape/complex"
-	)
-			.distinct()
-			.sorted()
-			.collect(Collectors.toList());
 	public static final Set<IRI> SHAPE_GRAPHS = Set.of(RDF4J.SHACL_SHAPE_GRAPH, RDF4J.NIL,
 			Values.iri("http://example.com/ns#shapesGraph1"));
+
+	private static final Set<String> ignoredTestCases = Set.of(
+			"test-cases/class/sparqlTarget",
+			"test-cases/class/sparqlTargetNot",
+			"test-cases/complex/sparqlTarget",
+			"test-cases/datatype/sparqlTarget",
+			"test-cases/maxCount/sparqlTarget",
+			"test-cases/or/implicitAndSparqlTarget"
+	);
 
 	boolean fullLogging = false;
 	static List<TestCase> testCases = getTestsToRun();
@@ -350,7 +196,7 @@ abstract public class AbstractShaclTest {
 			return Stream.empty();
 		}
 
-		return Arrays.stream(new File(resource.getFile()).list())
+		return Arrays.stream(Objects.requireNonNull(new File(resource.getFile()).list()))
 				.filter(s -> !s.startsWith("."))
 				.sorted()
 				.map(caseName -> {
@@ -394,13 +240,30 @@ abstract public class AbstractShaclTest {
 	}
 
 	private static List<TestCase> getTestsToRun() {
-		return testCasePaths
-				.stream()
-				.flatMap(testCasePath -> Arrays
-						.stream(ExpectedResult.values())
+		URL testCasesUrl = AbstractShaclTest.class.getClassLoader().getResource("test-cases");
+		File testCases = new File(Objects.requireNonNull(testCasesUrl).getFile());
+		String baseTestCasesPath = testCases.getPath();
+
+		List<File> mainTestCases = Arrays.stream(Objects.requireNonNull(testCases.listFiles()))
+				.filter(s -> !s.getName().startsWith("."))
+				.collect(Collectors.toList());
+
+		List<String> innerTestCases = mainTestCases.stream()
+				.flatMap(testCase -> Arrays.stream(Objects.requireNonNull(testCase.listFiles()))
+						.filter(s -> !s.getName().startsWith("."))
+						.map(File::getPath))
+				.map(testCasePath -> testCasePath.replace(baseTestCasesPath, "test-cases"))
+				.filter(testCasePath -> !ignoredTestCases.contains(testCasePath))
+				.sorted()
+				.collect(Collectors.toList());
+
+		List<TestCase> individualTestCases = innerTestCases.stream()
+				.flatMap(testCasePath -> Arrays.stream(ExpectedResult.values())
 						.flatMap(expectedResult -> findTestCases(testCasePath, expectedResult))
 				)
 				.collect(Collectors.toList());
+
+		return individualTestCases;
 	}
 
 	@AfterEach
@@ -952,9 +815,10 @@ abstract public class AbstractShaclTest {
 
 			if (ran) {
 				if (testCase.expectedResult == ExpectedResult.valid) {
-					Assertions.assertFalse(exception, "Expected validation to succeed");
+					Assertions.assertFalse(exception,
+							"Expected validation to succeed for " + testCase.getTestCasePath());
 				} else {
-					Assertions.assertTrue(exception, "Expected validation to fail");
+					Assertions.assertTrue(exception, "Expected validation to fail for " + testCase.getTestCasePath());
 				}
 
 				testValidationReport(testCase.testCasePath, validationReportActual);
@@ -1160,27 +1024,6 @@ abstract public class AbstractShaclTest {
 			shaclSailLogger.setLevel(shaclSailLoggerLevel);
 
 		}
-	}
-
-	/**
-	 * Sort and output testCasePaths
-	 *
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-		System.out.println("\n\tprivate static final List<String> testCasePaths = Stream.of(");
-		String testCasesString = testCasePaths
-				.stream()
-				.map(a -> "\t\t\"" + a + "\"")
-				.reduce((a, b) -> a + ",\n" + b)
-				.orElse("");
-
-		System.out.println(testCasesString);
-		System.out.println("\t)\n" +
-				"\t\t.distinct()\n" +
-				"\t\t.sorted()\n" +
-				"\t\t.collect(Collectors.toList());");
 	}
 
 	enum ExpectedResult {
